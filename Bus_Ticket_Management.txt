@@ -1,0 +1,503 @@
+#include<stdio.h>
+#include<conio.h>
+#include<string.h>
+
+struct Ticket
+{
+    int seat_no;
+    char station_from[50];
+    char station_to[50];
+    int book_status;//0 available,/1 booked
+};
+
+struct bus
+{
+    char busnumber[20];
+    char buscode[20];
+    char goes_to[20];
+    char goes_from[20];
+    char arrtiming[20];
+    char deptiming[20];
+    struct Ticket list_of_tickets[50];
+    int tickets_count;
+};
+
+
+void install_bus_record()
+{   int i;
+    int size=sizeof(struct bus);
+	FILE *fp1=fopen("bus1.dat","a");
+
+	struct bus detail;
+	printf("\n Enter the bus number :");
+	fflush(stdin);
+	gets(detail.busnumber);
+	printf("\n Enter the bus code number : ");
+	fflush(stdin);
+	gets(detail.buscode);
+	printf("\n Enter the arrival timing of the bus :");
+	fflush(stdin);
+	gets(detail.arrtiming);
+	printf("\n Enter the departure timing of the bus :");
+	fflush(stdin);
+	gets(detail.deptiming);
+	printf("\n Enter the location from which bus goes :");
+	fflush(stdin);
+	gets(detail.goes_from);
+	printf("\n Enter the location to which bus goes :");
+	fflush(stdin);
+	gets(detail.goes_to);
+/*
+	detail.tickets_count=50;
+	struct Ticket list_of_tickets[50];
+	for(i=0;i<detail.tickets_count;i++)
+	{
+		detail.list_of_tickets[i].seat_no=0;
+		detail.list_of_tickets[i].book_status=0;
+	}
+*/
+	fwrite(&detail,sizeof(struct bus),1,fp1);
+	printf("\n **********************************");
+	printf("Details added in successfully..................");
+	printf("\n **********************************");
+	getch();
+
+	fclose(fp1);
+}
+
+int return_items_in_file()
+{
+	int count=0;
+ 	int size=sizeof(struct bus);
+	struct bus detail;
+
+	FILE *fp2=fopen("bus1.dat","r");
+
+	while(!feof(fp2))
+	{
+		fread(&detail,size,1,fp2);
+		count++;
+	}
+	fclose(fp2);
+	return count-1;
+}
+
+
+void count_items_in_file()
+{
+	int count=0;
+	int size=sizeof(struct bus);
+	struct bus detail;
+
+	FILE *fp2=fopen("bus1.dat","r");
+
+	while(!feof(fp2))
+    {
+	fread(&detail,size,1,fp2);
+	count++;
+    }
+	count--;
+	fclose(fp2);
+	printf("\n Number of details of buses in file=%-4d",count);
+}
+
+void show_bus_details_with_routes_and_timings()
+{
+    int i;
+ 	int size=sizeof(struct bus);
+    int bus_count=return_items_in_file();
+    struct bus detail;
+
+	FILE *fp2=fopen("bus1.dat","r");
+
+	printf("\n *********************************");
+	printf("\n File content is : ");
+	printf("\n *********************************");
+
+    for(i=0;i<bus_count;i++)
+{
+	printf("\n ");
+	fread(&detail,sizeof(struct bus),1,fp2);
+	printf("\n bus number: %-15s \t bus code: %-15s ",detail.busnumber,detail.buscode);
+	printf("\n from: %-20s \t to: %-20s",detail.goes_from,detail.goes_to);
+	printf("\n arrival timing: %-12s \t departure timing: %-12s",detail.arrtiming,detail.deptiming);
+}
+detail.tickets_count=50;
+	struct Ticket list_of_tickets[50];
+	for(i=0;i<detail.tickets_count;i++)
+	{
+		detail.list_of_tickets[i].seat_no=0;
+		detail.list_of_tickets[i].book_status=0;
+	}
+    fclose(fp2);
+}
+
+
+void search_an_item_by_code()
+{
+	int i;
+	int found=0;        //not found
+	char item_code_to_search[20];
+	int size=sizeof(struct bus);
+	int bus_count=return_items_in_file();
+
+
+	struct bus detail;
+
+	FILE *fp2=fopen("bus1.dat","r");
+
+	printf("\n Enter code of the item you want to search ");
+	fflush(stdin);
+	gets(item_code_to_search);
+
+	for( i=0;i<bus_count;i++)
+	{
+	   fread(&detail,size,1,fp2);
+	   if(strcmp(detail.buscode,item_code_to_search)==0)
+	   {
+		found=1;
+		printf("\n Item found : ");
+		printf("\n bus number: %-15s \t bus code: %-15s ",detail.busnumber,detail.buscode);
+        printf("\n from: %-20s \t to: %-20s",detail.goes_from,detail.goes_to);
+        printf("\n arrival timing: %-12s \t departure timing: %-12s",detail.arrtiming,detail.deptiming);
+        break;
+	   }
+	}
+
+	if(found==0)
+	{
+		printf("\n Item not found : ");
+	}
+	fclose(fp2);
+}
+
+
+void delete_an_item_from_file_with_a_specific_item_code()
+{
+	int i;
+	char item_code_to_delete[20];
+	int actual_item_count=0;
+    int pos=-1;
+    struct bus items_list_in_array[1000];
+    int size=sizeof(struct bus);
+	struct bus detail;
+	int bus_count=return_items_in_file();
+    FILE *fp2=fopen("bus1.dat","r");
+
+    FILE *fp1=fopen("bus1.dat","w");
+	actual_item_count=return_items_in_file();
+
+	//store all records in array
+
+	printf("\n Bus Code List is : ");
+	for( i=0;i<bus_count;i++)
+	{
+	      fread(&detail,size,1,fp2);
+	      items_list_in_array[i]=detail;
+	      printf("\n %-20s",items_list_in_array[i].buscode);
+	}
+	printf("\n *********************************");
+	fclose(fp2);
+
+	//delete from array
+
+	printf("\n Enter which item you want to delete : ");
+	fflush(stdin);
+	gets(item_code_to_delete);
+       //	int pos=-1;                //search item
+	for( i=0;i<bus_count;i++)
+	{
+		// comment hai 1 line
+
+		items_list_in_array[i]=detail;
+	    if(strcmp(item_code_to_delete,items_list_in_array[i].buscode)==0)
+	    {
+		pos=i;
+		break;
+	    }
+	}
+	if(pos==-1)
+	{
+		printf("\n Item you want to delete does not exist in file ");
+		return;
+	}
+
+	//delete an item from array
+	for( i=0;i<bus_count-1;i++)
+	{
+		if(i>=pos)
+		{
+			items_list_in_array[i]=items_list_in_array[i+1];
+		}
+	}
+	bus_count--;
+
+	//Rewrite file from array
+	//Add first item in w mode
+
+	if(bus_count==0)
+	{
+		return;
+	}
+	detail=items_list_in_array[0];
+	fwrite(&detail,size,1,fp1);
+	fclose(fp1);
+
+	//add remaining items in a mode
+	fp1=fopen("bus1.dat","a");
+	for( i=1;i<bus_count;i++)
+	{
+		detail=items_list_in_array[i];
+		fwrite(&detail,size,1,fp1);
+	}
+	fclose(fp1);
+	printf("\n Item deleted successfully ");
+	printf("\n ***********************************");
+}
+
+void apply_for_reservation()
+{
+    char busnumber[20];
+    char buscode[20];
+    char goes_to[20];
+    char goes_from[20];
+    FILE *fp2=fopen("bus1.dat","r");
+
+    struct bus detail;
+    printf("\n Enter the bus number :");
+	fflush(stdin);
+	gets(detail.busnumber);
+	printf("\n Enter the bus code number : ");
+	fflush(stdin);
+	gets(detail.buscode);
+	printf("\n Enter the location from which bus goes :");
+	fflush(stdin);
+	gets(detail.goes_from);
+	printf("\n Enter the location to which bus goes :");
+	fflush(stdin);
+	gets(detail.goes_to);
+}
+
+
+void update_an_item_of_file()
+{
+	int i;
+	int pos=-1;
+	char item_code_to_update[20];
+	int actual_item_count=0;
+	struct bus items_list_in_array[1000];
+
+	int size=sizeof(struct bus);
+	struct bus detail;
+	int bus_count=return_items_in_file();
+		FILE *fp2=fopen("bus1.dat","r");
+
+		FILE *fp1=fopen("bus1.dat","w");
+
+	actual_item_count=return_items_in_file();
+
+
+	//store all records in array
+
+	printf("\n Item Code List is : ");
+	for(i=0;i<bus_count;i++)
+	{
+		fread(&detail,size,1,fp2);
+		items_list_in_array[i]=detail;
+	}
+	fclose(fp2);
+
+	//Delete from array
+
+	printf("\n Enter which item you want to update : ");
+	fflush(stdin);
+	gets(item_code_to_update);
+	// search item
+
+	for(i=0;i<bus_count;i++)
+	{
+	// comment hai 1 line
+
+		items_list_in_array[i]=detail;
+		if(strcmp(item_code_to_update,items_list_in_array[i].buscode)==0)
+		{
+			pos=i;
+			break;
+		}
+	}
+	if(pos==-1)
+	{
+		printf("\n Item you want to update does not exist in file");
+		return;
+	}
+		printf("\n Item that you want to update is : ");
+		printf("\t %-15s",items_list_in_array[pos].busnumber);
+		printf("\t %-15s",items_list_in_array[pos].buscode);
+		printf("\t %-15s",items_list_in_array[pos].goes_from);
+		printf("\n Enter new details :");
+		printf("\n Enter item name : ");
+		fflush(stdin);
+		gets(items_list_in_array[pos].busnumber);
+		printf("\n Enter the item code : ");
+		fflush(stdin);
+		gets(items_list_in_array[pos].buscode);
+		printf("\n Enter item price : ");
+		fflush(stdin);
+		gets(items_list_in_array[pos].goes_from);
+
+		//rewrite file from array
+		//add first item in w mode
+
+		detail=items_list_in_array[0];
+		fwrite(&detail,size,1,fp1);
+		fclose(fp1);
+
+		//add remaining items in a mode
+
+		fp1=fopen("bus1.dat","a");
+		for(i=1;i<bus_count;i++)
+		{
+			detail=items_list_in_array[i];
+			fwrite(&detail,size,1,fp1);
+		}
+		fclose(fp1);
+		printf("\n Item Updated successfully ");
+}
+
+int check_password()
+{
+    int accepted=0;
+    int i=-1;
+    char corrected_password[5]="1234";
+    char entered_password[10];
+    char ch;
+    printf("\n Enter password : ");
+    fflush(stdin);
+    do
+    {
+        ch=getch();
+        if(ch!=13)
+        {
+            entered_password[++i]=ch;
+            printf("*");
+        }
+        else
+        {
+            entered_password[++i]='\0';
+            break;
+        }
+    }while(1);
+    if(strcmp(entered_password,corrected_password)==0)
+    {
+        printf("\n Password accepted :");
+        printf("\n\n Press enter to continue... ");
+        getch();
+        accepted=0;
+        return accepted;
+    }
+    else
+    {
+        printf("\n Password rejected... ");
+        printf("\n\n Press enter to continue....");
+        getch();
+        accepted=0;
+        return accepted;
+    }
+}
+
+//void install_bus_record();
+//void show_bus_details_with_routes_and_timings();
+//void count_items_in_file();
+//void search_an_item_by_code()
+
+
+main()
+{
+
+    int seat_no;
+    char station_from[50];
+    char station_to[50];
+    int book_status;//0 available,/1 booked
+    int tickets_count;
+
+    int busnumber;
+    char buscode[20];
+    char driver_name[20];
+    char goes_to[20];
+    char goes_from[20];
+    int choice;
+    int size=sizeof(struct bus);
+    int bus_count=1;
+	int i;
+
+    do
+    {
+	printf("\n	         *************************************************           ");
+	printf("\n	                 WELCOME TO BUS RESERVATION SYSTEM :	             ");
+	printf("\n	         *************************************************           ");
+	printf("\n 0.Exit ");
+	printf("\n 1.Install bus record ");
+	printf("\n 2.Update bus record ");
+	printf("\n 3.Delete bus record ");
+	printf("\n 4.Show files available ");
+	printf("\n 5.Show bus details with routes and timings ");
+	printf("\n 6.Apply for reservation ");
+	printf("\n 7.Generate bill ");
+	printf("\n 8.Pay amount ");
+	printf("\n 9.Search an item by code ");
+
+    printf("\n ********************");
+	printf("\n Enter your choice : ");
+	scanf("%d",&choice);
+	printf("\n ********************");
+	switch(choice)
+	{
+	    case 1:
+	            check_password();
+                install_bus_record();
+	    break;
+
+	    case 2:
+	            check_password();
+                update_an_item_of_file();
+	    break;
+
+	    case 3:
+	            check_password();
+                delete_an_item_from_file_with_a_specific_item_code();
+	    break;
+
+	    case 4:
+                count_items_in_file();
+	    break;
+
+	    case 5:
+                show_bus_details_with_routes_and_timings();
+	    break;
+
+	    case 6:
+                apply_for_reservation();
+	    break;
+
+	    case 7:
+	    break;
+
+	    case 8:
+	    break;
+
+	    case 9:
+                search_an_item_by_code();
+	    break;
+	}
+	printf("\n Press enter to continue...");
+	getch();
+}while(choice!=0);
+getch();
+}
+
+
+
+
+
+
+
